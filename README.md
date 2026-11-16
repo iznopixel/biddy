@@ -34,3 +34,15 @@ Create a Shortcut on the contractor's Apple device and name it **Create Job Esti
 5. **Show Result**. Pass in the dictionary value.
 
 On the device, run it once in Shortcuts and allow microphone and network access when prompted. Then say “Hey Siri, Create Job Estimate” and verify the resulting message and estimate in the sandbox. The API returns a message for both `created` and `needs_attention`. [Apple Shortcuts POST setup](https://support.apple.com/guide/shortcuts/apd58d46713f/ios)
+
+## OZ Construction project inquiries
+
+The public page is at `/`. It uses the supplied OZ Construction logo and collects the visitor’s name, email, phone, project address, and description.
+
+1. Verify the sending domain in [Resend](https://resend.com/docs/dashboard/domains/introduction) and create a sending API key.
+2. Set `RESEND_API_KEY`, `INQUIRY_FROM_EMAIL` (an address on the verified domain), and `INQUIRY_TO_EMAIL` (the contractor’s inbox) in `.env.local` and Vercel.
+3. Submit a test inquiry from the deployed page with dummy contact details. Confirm it appears in the contractor’s inbox, contains all five fields, and that Reply addresses the test submitter. Finish this check before sharing the URL.
+
+The intake schema and email delivery live in `lib/intake`. The API emails the contractor for review. It sends no auto-reply and does not create or match QuickBooks customers. The inbox is the only review record. There is no durable delivery queue, submission history, or duplicate detection. The public form has a honeypot and request limits, but no durable rate limits.
+
+The estimate client reads its Sandbox credentials through `SandboxCredentialProvider`. The current provider reads the access token from the environment. Refresh in the Intuit OAuth playground and replace the environment token as described above. A future persistent provider can refresh and store the rotated refresh token before returning an access token to the client.
