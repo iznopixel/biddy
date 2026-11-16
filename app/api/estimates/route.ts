@@ -46,7 +46,7 @@ export async function POST(request: Request) {
 
   let creating = false;
   try {
-    const qb = quickBooks();
+    const qb = await quickBooks();
     const [customers, services] = await Promise.all([qb.customers(), qb.services()]);
     const draft = await extract(transcript, services.map(service => ({
       id: service.Id,
