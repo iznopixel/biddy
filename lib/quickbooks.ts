@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { loadSandboxCredentials, type SandboxCredentialProvider } from './quickbooks-credentials';
 
 const customerSchema = z.object({ Id: z.string(), DisplayName: z.string(), FullyQualifiedName: z.string().optional() });
 const serviceSchema = z.object({ Id: z.string(), Name: z.string(), FullyQualifiedName: z.string().optional(), Description: z.string().optional() });
@@ -11,10 +12,10 @@ export class QuickBooksError extends Error {
   }
 }
 
-export function quickBooks() {
-  const realm = process.env.QBO_REALM_ID;
-  const token = process.env.QBO_ACCESS_TOKEN;
-  if (!realm || !/^\d+$/.test(realm) || !token) throw new QuickBooksError(503);
+export async function quickBooks(loadCredentials: SandboxCredentialProvider = loadSandboxCredentials) {
+  const credentials = await loadCredentials();
+  if (!credentials) throw new QuickBooksError(503);
+  const { realmId: realm, accessToken: token } = credentials;
 
   const base = 'https://sandbox-quickbooks.api.intuit.com/v3/company/' + realm;
   async function request(path: string, body?: object): Promise<unknown> {
